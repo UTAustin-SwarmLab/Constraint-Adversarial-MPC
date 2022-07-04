@@ -1,0 +1,6 @@
+parameters:
+  T: 100 #T: total time steps
+  n: 1  #n: x-dim
+  m: 1  #m: u-dim
+  p: 1  #p: s-dim
+  sample_n: 2000  #number of data points

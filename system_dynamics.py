@@ -114,7 +114,7 @@ def CtrlTask(random_seed=326, x0=1, T=T):
     return Phi, float(cost)
 
 def ConstaintedCtrlTaskParas(random_seed = 326, T=T):
-    #This function returns the co-design matrix, Phi.
+    #This function returns the parameters (A, B, C, Q, R).
     #S is not related to it so we assume it is 0 in this function.
 
     #T: total time steps
@@ -136,46 +136,9 @@ def ConstaintedCtrlTaskParas(random_seed = 326, T=T):
 
     return A, B, C, Q, R
 
-def SARIMA_gen(sample_n = sample_n, T = T, random_seed = 326, save_path="./"):
-    np.random.seed(random_seed)
 
-    date = pd.date_range('2010-01-01', freq='H', periods=T)
-    coeff_batch = []
-    time_series_batch = []
-
-    for ii in range(sample_n):
-        x = np.random.randint(20, size=(T, 1))
-        df = pd.DataFrame(x, columns=['data'], index=date)
-        mod = sm.tsa.arima.ARIMA(df, order=(1, 0, 1), seasonal_order=(2, 1, 0, 24))
-        model_fit = mod.fit()
-        # yhat = model_fit.predict()
-        yhat = model_fit.forecast(T)
-        # yhat.plot()
-        # plt.show()
-        ### parameters
-        # ar.L1   
-        # ma.L1   
-        # ar.S.L24
-        # ar.S.L48
-        # sigma2  
-        coeff = model_fit.params.to_numpy(dtype=np.float64)
-        coeff_batch.append(coeff)
-        time_series_batch.append(yhat)
-        print(coeff)
-        # print(model_fit.summary())
-        # print(model_fit.params)
-        print(yhat.head())
-
-    coeff_batch = np.array(coeff_batch)
-    time_series_batch = np.array(time_series_batch)
-    print(coeff_batch.shape)
-    print(time_series_batch.shape)
-    np.save(save_path + "coeff_batch", coeff_batch)
-    np.save(save_path + "time_series_batch", time_series_batch)
-
-
-def ARIMA_gen(random_seed = 326,
-    sample_n = sample_n):
+### Generate ARIMA time series
+def ARIMA_gen(random_seed = 326, sample_n = sample_n):
     # mu, alpha, beta, gamma are parameters for ARIMA.
     # Upper case vars represent vectors.
     # sample_n is the number of samples.
@@ -204,33 +167,8 @@ def ARIMA_gen(random_seed = 326,
 
     return S, MU, ALPLA, BETA, SIGMA
 
-
-def Periodic_gen(random_seed = 326, sample_n = sample_n):    
-
-    np.random.seed(random_seed)
-
-    W = np.random.randint(low=3, high=6, size=(sample_n, 1))
-    H = np.random.randint(low=10, high=20, size=(sample_n, 1))
-    L = np.random.randint(low=2, high=7, size=(sample_n, 1)) 
-    S = np.zeros((sample_n, T))
-
-    for ii in range(sample_n):
-        for tt in range(T):
-            if tt%24 >= 12 - int(W[ii, :]/2) and tt%24 <= 12 + int(W[ii, :]/2):
-                S[ii, tt] = H[ii, :] + 0.3 * np.random.randn()
-            else:
-                S[ii, tt] = L[ii, :] + 0.3 * np.random.randn()
-
-    # LineChart(x=[np.arange(len(S[-1]))], y=[S[-1]], legend=["S"], plot_show=True)
-    return S, W, H, L
-
 if __name__ == '__main__':
-    # Phi = CtrlTask()
-    # print(Phi.shape)
+    Phi = CtrlTask()
+    S = ARIMA_gen
+    print(Phi.shape, S.shape)
 
-    # S, MU, ALPLA, BETA, SIGMA = ARIMA_gen()
-    # print(S.shape, S)
-    # S, MU, ALPLA, BETA, SIGMA = ARIMA_gen(random_seed=327)
-    # print(S.shape, S)
-
-    Periodic_gen()
