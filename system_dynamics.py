@@ -22,7 +22,7 @@ def CtrlTask(s, random_seed=326, x0=1, T=T):
     #p: s-dim
 
     np.random.seed(random_seed)
-    s = np.zeros((p*T,1))
+    # s = np.zeros((p*T,1))
 
     A = np.random.rand(n,n) + 0.1
     B = np.random.rand(n,m) + 0.1
